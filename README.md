@@ -19,6 +19,7 @@ To run project on Ubuntu:
     npm install stripe --save
 
 3) Prepare environmental variables:
+    
     Create in directory PaymentService file .env
     With variables:
         SECRET_KEY=any-random-key-for
