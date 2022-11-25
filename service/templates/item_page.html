@@ -8,17 +8,21 @@
     </div>
 
     <div class="row d-flex justify-content-center">
-        <p class="pt-3">{{item.title}}</p>
+        <p3>Title: {{item.title}}</p3>
+    </div>
+    <div class="row d-flex justify-content-center">
+        <p3>Price: {{item.price}}</p3>
+    </div>
+
+    <div class="row d-flex justify-content-center">
+        <p3>Description: {{item.description}}</p3>
     </div>
 
     <div class="row d-flex justify-content-center">
         <img class="img-fluid img-thumbnail" src={{images_root}}{{item.image_field}} style="height: 400px; object-fit: contain;">
     </div>
 
-    <a type="button" class="btn btn-sm btn-outline-dark"  style="border-radius: 16px;"
-       href="{% url 'buy_by_id' item_id=item.id %}">Buy</a>
-
-
+    <button class="button is-primary " id="submitBtn">Buy</button>
 </div>
 
 

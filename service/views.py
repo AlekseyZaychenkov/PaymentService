@@ -4,19 +4,12 @@ from django.http import JsonResponse
 
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.utils import json
 
 from service.forms import *
 from service.models import Item
 from PaymentService.settings import MEDIA_ROOT, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
 
 log = logging.getLogger(__name__)
-
-
-def home(request):
-    context = __get_basic_home_context()
-
-    return render(request, "home.html", context)
 
 
 @csrf_exempt
@@ -27,10 +20,23 @@ def stripe_config(request):
 
 
 @csrf_exempt
-def create_checkout_session(request):
+def item_by_id(request, item_id):
+    context = __get_basic_context()
+
+    context["item"] = Item.objects.get(id=item_id)
+
+    return render(request, "item_page.html", context)
+
+
+@csrf_exempt
+def buy_by_id(request, item_id):
+    context = __get_basic_context()
+
     if request.method == 'GET':
         domain_url = 'http://localhost:8000/'
         stripe.api_key = STRIPE_SECRET_KEY
+
+        item = Item.objects.get(id=item_id)
         try:
             # Create new Checkout Session for the order
             # Other optional params include:
@@ -45,12 +51,11 @@ def create_checkout_session(request):
                 line_items=[{
                     'price_data': {
                         'currency': 'usd',
-                        # 200 == 2,00$
-                        'unit_amount': 200,
+                        'unit_amount': int(item.price.amount*100),
                         'product_data': {
-                            'name': 'T-shirt',
-                            'description': 'Comfortable cotton t-shirt',
-                            'images': ['https://example.com/t-shirt.png'],
+                            'name': item.title,
+                            'description': item.description,
+                            # 'images': ['https://example.com/t-shirt.png'],
                         },
                     },
                     'quantity': 1,
@@ -65,24 +70,10 @@ def create_checkout_session(request):
             log.error(f"Error: {str(e)}")
             return JsonResponse({'Error': str(e)})
 
-
-def item_by_id(request, item_id):
-    context = __get_basic_home_context()
-
-    context["item"] = Item.objects.get(id=item_id)
-
-    return render(request, "item_page.html", context)
-
-
-def buy_by_id(request, item_id):
-    context = __get_basic_home_context()
-
-    context["item"] = Item.objects.get(id=item_id)
-
     return render(request, "buy_page.html", context)
 
 
-def __get_basic_home_context():
+def __get_basic_context():
     context = dict()
 
     context["images_root"] = os.sep + os.path.basename(os.path.normpath(MEDIA_ROOT)) + os.sep
